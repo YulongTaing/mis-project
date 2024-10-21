@@ -1,27 +1,26 @@
 // src/app/api/orders/route.js
 
-let orders = []; // In-memory array to store orders for demonstration
-
-export async function GET(request) {
-  return new Response(JSON.stringify(orders), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-export async function POST(request) {
-  const data = await request.json();
-  const newOrder = {
-    id: orders.length + 1, // Simple ID generation
-    product: data.product,
-    quantity: data.quantity,
-    trackingNumber: `TRACK-${orders.length + 1}`, // Generate a tracking number
-    status: 'Pending',
-  };
+let orders = [
+    { trackingNumber: 'TRACK-1', product: 'Product A', quantity: 2, status: 'Shipped' },
+    { trackingNumber: 'TRACK-2', product: 'Product B', quantity: 1, status: 'Pending' },
+    // Add more sample orders as needed
+  ];
   
-  orders.push(newOrder); // Add new order to the array
-  return new Response(JSON.stringify(newOrder), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
+  export async function GET(request) {
+    const { searchParams } = new URL(request.url);
+    const trackingNumber = searchParams.get('trackingNumber');
+  
+    const order = orders.find(order => order.trackingNumber === trackingNumber);
+  
+    if (order) {
+      return new Response(JSON.stringify(order), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } else {
+      return new Response(JSON.stringify({ message: 'Order not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
